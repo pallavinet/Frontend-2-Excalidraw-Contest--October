@@ -13,41 +13,46 @@ const canvas=document.querySelector("canvas"),
 tools=document.querySelectorAll(".tool"),
 ctx=canvas.getContext("2d");
 
-let prevMouseX, prevMouseY,
+let prevMouseX, prevMouseY,snapshot,
  isdrawing=false,
 selectedTool="brush";
+ brushWidth = 5;
 
 window.addEventListener("load",()=>{
     canvas.width=canvas.offsetWidth;
     canvas.height=canvas.offsetHeight;
 })
 
-const draw=(e)=>{
-    // ctx.strokeRect(e.offsetX,e.offsetY)
+const drawRect=(e)=>{
+    ctx.strokeRect(e.offsetX,e.offsetY, prevMouseX-e.offsetX, prevMouseY-e.offsetY)
 }
 
-const startDraw=()=>{
+const startDraw=(e)=>{
     isdrawing=true;
     prevMouseX=e.offsetX;
     prevMouseY=e.offsetY;
     ctx.beginPath();
-    // ctx.lineWidth = brushWidth;
+    ctx.lineWidth = brushWidth;
+ snapshot = ctx.getImageData(0,0,canvas.width, canvas.height);
 }
 const drawing=(e)=>{
     if(!isdrawing)return;
+ ctx.putImageData(snapshot, 0, 0);
     if(selectedTool==="brush"){
         ctx.lineTo(e.offsetX, e.offsetY, prevMouseX-e.offsetX,prevMouseY-e.offsetY);
         ctx.stroke();
     }else if(selectedTool==="rectangle"){
-        draw(e);
+        drawRect(e);
     }
    
 }
 
 tools.forEach(btn=>{
     btn.addEventListener("click",()=>{
-        
-        console.log(btn.id);
+        document.querySelector(".options .active").classList.remove("active");
+        btn.classList.add("active");
+        selectedTool = btn.id;
+        console.log(selectedTool);
     })
 })
 canvas.addEventListener("mousedown", startDraw);
